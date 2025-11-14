@@ -6,11 +6,15 @@ import (
 	"blog/route"
 	"flag"
 	"fmt"
+	"log"
+	"os"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/viper"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
 )
 
 var configFile = flag.String("f", "config.yml", "the config file")
@@ -36,11 +40,20 @@ func main() {
 }
 
 func initDB() {
+	newLogger := logger.New(
+		log.New(os.Stdout, "\r\n", log.LstdFlags), // io writer
+		logger.Config{
+			SlowThreshold:             time.Second, // 慢 SQL 阈值
+			LogLevel:                  logger.Info, // 日志级别
+			IgnoreRecordNotFoundError: false,       // 忽略找不到记录的错误
+			Colorful:                  true,        // 彩色输出
+		},
+	)
 	var err error
 	dsn := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=utf8mb4&parseTime=True&loc=Local",
-		viper.Get("db.username"), viper.Get("db.password"), viper.Get("db.host"),
-		viper.GetInt("db.port"), viper.Get("db.dbname"))
-	common.Db, err = gorm.Open(mysql.Open(dsn), &gorm.Config{})
+		viper.GetString("db.username"), viper.GetString("db.password"), viper.GetString("db.host"),
+		viper.GetInt("db.port"), viper.GetString("db.dbname"))
+	common.Db, err = gorm.Open(mysql.Open(dsn), &gorm.Config{Logger: newLogger})
 	if err != nil {
 		panic("failed to connect database")
 	}
