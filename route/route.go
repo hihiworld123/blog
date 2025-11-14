@@ -2,6 +2,7 @@ package route
 
 import (
 	"blog/common"
+	commentservice "blog/service/comment"
 	"blog/service/domain"
 	postservice "blog/service/post"
 	userservice "blog/service/user"
@@ -220,18 +221,18 @@ func DeletePost(c *gin.Context) {
 
 // PostComment 发布评论
 func PostComment(c *gin.Context) {
-	request := domain.PostRequest{}
+	request := domain.CommentRequest{}
 	err := c.ShouldBind(&request)
 	if err != nil {
-		log.Error("AddPost gin bind error", err)
+		log.Error("PostComment gin bind error", err)
 		common.Fail(c, err)
 		return
 	}
 
 	request.UserId = c.GetInt64("UserId")
-	err = postservice.Add(request)
+	err = commentservice.PostComment(request)
 	if err != nil {
-		log.Error("AddPost error", err)
+		log.Error("PostComment error", err)
 		common.Fail(c, err)
 		return
 	}
@@ -241,21 +242,20 @@ func PostComment(c *gin.Context) {
 
 // AllComment 文章的所有评论
 func AllComment(c *gin.Context) {
-	request := domain.PostRequest{}
+	request := domain.CommentRequest{}
 	err := c.ShouldBind(&request)
 	if err != nil {
-		log.Error("AddPost gin bind error", err)
+		log.Error("AllComment gin bind error", err)
 		common.Fail(c, err)
 		return
 	}
 
-	request.UserId = c.GetInt64("UserId")
-	err = postservice.Add(request)
+	data, err := commentservice.AllComment(request)
 	if err != nil {
-		log.Error("AddPost error", err)
+		log.Error("AllComment error", err)
 		common.Fail(c, err)
 		return
 	}
 
-	common.Success(c, "")
+	common.Success(c, data)
 }

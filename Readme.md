@@ -1,0 +1,2 @@
+1.数据库使用的是mysql数据库
+2.sql数据和postman接口配置在doc文件夹中

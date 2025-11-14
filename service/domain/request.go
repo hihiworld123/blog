@@ -16,3 +16,7 @@ type LoginRequest struct {
 type PostRequest struct {
 	entity.Post
 }
+
+type CommentRequest struct {
+	entity.Comment
+}
